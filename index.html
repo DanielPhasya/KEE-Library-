@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Library KEE GBKP — Database Kitab Ende-enden GBKP (No. 1–474)</title>
 
+  <!-- FAVICON TAB BROWSER: Ganti "logo-gbkp.png" dengan nama file gambar logomu -->
+  <link rel="icon" type="image/png" href="logo-gbkp.png" />
+  <link rel="apple-touch-icon" href="logo-gbkp.png" />
+
   <!-- Google Fonts: Inter untuk antarmuka modern & keterbacaan lirik ibadah -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -101,9 +105,16 @@
         <!-- Baris Kiri: Logo, Judul, Status Koneksi Supabase -->
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            <!-- Emblem Buku & Salib GBKP -->
-            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
-              <svg class="w-7 h-7 text-gbkp-card" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- LOGO HEADER WEB: Ganti src="logo-gbkp.png" dengan nama file gambar logomu -->
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner overflow-hidden">
+              <img
+                src="logo-gbkp.png"
+                alt="Logo GBKP"
+                class="w-full h-full object-contain p-1"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+              />
+              <!-- Ikon cadangan otomatis jika file gambar belum diupload -->
+              <svg style="display:none;" class="w-7 h-7 text-gbkp-card" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M6 9.5C6 8.11929 7.11929 7 8.5 7H16.5C17.3284 7 18 7.67157 18 8.5V28.5C18 27.6716 17.3284 27 16.5 27H8.5C7.11929 27 6 25.8807 6 24.5V9.5Z" stroke="currentColor" stroke-width="2" />
                 <path d="M30 9.5C30 8.11929 28.8807 7 27.5 7H19.5C18.6716 7 18 7.67157 18 8.5V28.5C18 27.6716 18.6716 27 19.5 27H27.5C28.8807 27 30 25.8807 30 24.5V9.5Z" stroke="currentColor" stroke-width="2" />
                 <path d="M18 11V19M14.5 14.5H21.5" stroke="#D4A359" stroke-width="2.2" stroke-linecap="round" />
