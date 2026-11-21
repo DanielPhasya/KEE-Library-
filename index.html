@@ -1151,7 +1151,12 @@
      */
     function isWebSocketAllowed() {
       try {
-        if (window.self !== window.top && window.location.protocol === 'about:') {
+        // Nonaktifkan WebSocket jika berjalan di dalam iframe/sandbox pratinjau Canvas
+        if (window.self !== window.top) {
+          return false;
+        }
+        const proto = window.location && window.location.protocol;
+        if (proto !== 'http:' && proto !== 'https:') {
           return false;
         }
         return typeof window.WebSocket === 'function';
