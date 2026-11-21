@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library KEE GBKP — Database Kitab Ende-enden GBKP (No. 1–474)</title>
+
+  <!-- Google Fonts: Inter untuk antarmuka modern & keterbacaan lirik ibadah -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            gbkp: {
+              navy: '#0C2238',
+              blue: '#143658',
+              blueLight: '#1E4D7B',
+              canvas: '#E9EEF4',
+              card: '#F5F7FA',
+              surface: '#FFFFFF',
+              border: '#D5DFEA',
+              text: '#102438',
+              muted: '#4A6078',
+              gold: '#D4A359',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Palet biru tua & putih lembut anti-silau untuk kenyamanan mata */
+    html, body {
+      background-color: #E9EEF4;
+      color: #102438;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Scrollbar halus bernuansa biru tua */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E9EEF4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #9FB3C8;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #143658;
+    }
+
+    /* Animasi masuk halus untuk toast & modal */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-up {
+      animation: fadeSlideUp 0.22s ease-out forwards;
+    }
+
+    /* Sembunyikan scrollbar horizontal pada bar kategori mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gbkp-canvas text-gbkp-text selection:bg-gbkp-blue selection:text-gbkp-surface">
+
+  <!-- ==================== HEADER UTAMA ==================== -->
+  <header class="bg-gradient-to-r from-gbkp-navy via-gbkp-blue to-gbkp-navy text-gbkp-card shadow-md sticky top-0 z-30 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+
+        <!-- Baris Kiri: Logo, Judul, Status Koneksi Supabase -->
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Emblem Buku & Salib GBKP -->
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-7 h-7 text-gbkp-card" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M6 9.5C6 8.11929 7.11929 7 8.5 7H16.5C17.3284 7 18 7.67157 18 8.5V28.5C18 27.6716 17.3284 27 16.5 27H8.5C7.11929 27 6 25.8807 6 24.5V9.5Z" stroke="currentColor" stroke-width="2" />
+                <path d="M30 9.5C30 8.11929 28.8807 7 27.5 7H19.5C18.6716 7 18 7.67157 18 8.5V28.5C18 27.6716 18.6716 27 19.5 27H27.5C28.8807 27 30 25.8807 30 24.5V9.5Z" stroke="currentColor" stroke-width="2" />
+                <path d="M18 11V19M14.5 14.5H21.5" stroke="#D4A359" stroke-width="2.2" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-gbkp-surface truncate">
+                  Library KEE GBKP
+                </h1>
+                <!-- Indikator Status Koneksi Supabase Realtime -->
+                <span
+                  id="connectionBadge"
+                  class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-100 border border-amber-300/30"
+                >
+                  <span id="connectionDot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+                  <span id="connectionText">Menghubungkan...</span>
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-blue-100/85 truncate">
+                Database Kitab Ende-enden Gereja Batak Karo Protestan (No. 1 – 474)
+              </p>
+            </div>
+          </div>
+
+          <!-- Tombol Aksi Mobile (Mode Editor & Import) -->
+          <div class="flex lg:hidden items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              id="mobileEditorLockBtn"
+              onclick="handleEditorLockToggle()"
+              title="Status Mode Editor"
+              class="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 transition text-gbkp-surface border border-white/15"
+              aria-label="Kunci atau Buka Mode Editor"
+            >
+              <svg id="mobileLockIcon" class="w-5 h-5 text-gbkp-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onclick="requireEditorAccess(() => openImportModal())"
+              title="Import JSON Massal"
+              class="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 transition text-gbkp-surface border border-white/15"
+              aria-label="Import JSON"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Baris Kanan: Widget Tanggal & Jam Real-Time WIB + Tombol Mode Editor & JSON -->
+        <div class="flex flex-wrap items-center justify-between lg:justify-end gap-2.5">
+          <!-- Tanggal & Jam Real-Time WIB -->
+          <div class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gbkp-navy/85 border border-white/15 shadow-sm">
+            <span class="relative flex h-2.5 w-2.5 shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+            </span>
+            <div class="text-left">
+              <div id="realtimeDate" class="text-[11px] sm:text-xs font-medium text-blue-100/90 leading-tight">
+                Memuat tanggal...
+              </div>
+              <div id="realtimeClock" class="text-sm sm:text-base font-bold tracking-wide text-gbkp-surface tabular-nums leading-tight">
+                00:00:00 WIB
+              </div>
+            </div>
+          </div>
+
+          <!-- Tombol Status Mode Editor (Desktop) -->
+          <button
+            type="button"
+            id="desktopEditorLockBtn"
+            onclick="handleEditorLockToggle()"
+            class="hidden lg:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/12 hover:bg-white/20 active:scale-95 text-gbkp-surface text-xs font-semibold border border-white/20 transition"
+          >
+            <svg id="desktopLockIcon" class="w-4 h-4 text-gbkp-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span id="desktopEditorLockLabel">Mode Baca (Buka Editor)</span>
+          </button>
+
+          <!-- Tombol Import, Template & Export JSON (Desktop) -->
+          <div class="hidden lg:flex items-center gap-2">
+            <button
+              type="button"
+              onclick="requireEditorAccess(() => openImportModal())"
+              class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/12 hover:bg-white/20 active:scale-95 text-gbkp-surface text-xs font-semibold border border-white/15 transition"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>Import JSON</span>
+            </button>
+
+            <button
+              type="button"
+              onclick="downloadTemplateJSON()"
+              title="Unduh kerangka kosong KEE No. 1–474 untuk diisi massal"
+              class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/12 hover:bg-white/20 active:scale-95 text-gbkp-surface text-xs font-semibold border border-white/15 transition"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Template</span>
+            </button>
+
+            <button
+              type="button"
+              onclick="exportDatabaseJSON()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gbkp-surface text-gbkp-navy hover:bg-blue-50 active:scale-95 text-xs font-bold shadow-sm transition"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+              </svg>
+              <span>Export JSON</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== DASBOR STATISTIK, PENCARIAN & FILTER ==================== -->
+  <section class="bg-gbkp-card border-b border-gbkp-border shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3.5">
+
+      <!-- Dasbor Statistik 4 Kartu + Aksi Mobile -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-gbkp-border/80">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full">
+          <div class="px-3.5 py-2.5 rounded-xl bg-gbkp-surface border border-gbkp-border flex items-center justify-between gap-2 shadow-2xs">
+            <span class="text-xs font-medium text-gbkp-muted">Total Nomor</span>
+            <span id="statTotal" class="text-sm sm:text-base font-extrabold text-gbkp-navy tabular-nums">474</span>
+          </div>
+          <div class="px-3.5 py-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-center justify-between gap-2">
+            <span class="text-xs font-medium text-emerald-800">Sudah Terisi</span>
+            <span id="statFilled" class="text-sm sm:text-base font-extrabold text-emerald-700 tabular-nums">0</span>
+          </div>
+          <div class="px-3.5 py-2.5 rounded-xl bg-amber-50/90 border border-amber-200 flex items-center justify-between gap-2">
+            <span class="text-xs font-medium text-amber-800">Belum Terisi</span>
+            <span id="statEmpty" class="text-sm sm:text-base font-extrabold text-amber-700 tabular-nums">474</span>
+          </div>
+          <div class="px-3.5 py-2.5 rounded-xl bg-blue-50/90 border border-blue-200 flex items-center justify-between gap-2">
+            <span class="text-xs font-medium text-gbkp-blue">Ditandai Ibadah</span>
+            <span id="statBookmarked" class="text-sm sm:text-base font-extrabold text-gbkp-navy tabular-nums">0</span>
+          </div>
+        </div>
+
+        <!-- Bar Aksi Mobile: Template, Export & Sinkronisasi Ulang -->
+        <div class="flex lg:hidden items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onclick="fetchSongsFromSupabase(true)"
+            class="px-3 py-2 rounded-xl bg-gbkp-surface border border-gbkp-border text-gbkp-navy text-xs font-semibold"
+          >
+            Muat Ulang
+          </button>
+          <button
+            type="button"
+            onclick="downloadTemplateJSON()"
+            class="px-3 py-2 rounded-xl bg-gbkp-surface border border-gbkp-border text-gbkp-navy text-xs font-semibold"
+          >
+            Template JSON
+          </button>
+          <button
+            type="button"
+            onclick="exportDatabaseJSON()"
+            class="px-3 py-2 rounded-xl bg-gbkp-navy text-gbkp-surface text-xs font-semibold"
+          >
+            Export JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Baris Input Pencarian, Dropdown Kategori, & Filter Status -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <!-- Input Pencarian Cepat -->
+        <div class="md:col-span-5 relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gbkp-muted">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+          </div>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Cari No. KEE (1–474), judul, lirik, atau nama pengisi..."
+            class="w-full pl-11 pr-10 py-2.5 rounded-xl bg-gbkp-surface border border-gbkp-border text-gbkp-text placeholder-gbkp-muted text-sm focus:outline-none focus:ring-2 focus:ring-gbkp-blue transition"
+          />
+          <button
+            id="clearSearchBtn"
+            type="button"
+            onclick="clearSearch()"
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gbkp-muted hover:text-gbkp-navy"
+            aria-label="Hapus pencarian"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown 13 Kategori Liturgi GBKP -->
+        <div class="md:col-span-4">
+          <select
+            id="categorySelect"
+            aria-label="Filter Kategori Liturgi GBKP"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-surface border border-gbkp-border text-gbkp-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue transition"
+          >
+            <option value="ALL">Semua Kategori Liturgi (1–474)</option>
+          </select>
+        </div>
+
+        <!-- Dropdown Filter Status (Semua, Sudah Terisi, Belum Terisi, Ditandai Ibadah) -->
+        <div class="md:col-span-3">
+          <select
+            id="statusSelect"
+            aria-label="Filter Status Kelengkapan & Ibadah"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-surface border border-gbkp-border text-gbkp-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue transition"
+          >
+            <option value="ALL">Status: Semua (474)</option>
+            <option value="FILLED">Sudah Terisi</option>
+            <option value="EMPTY">Belum Terisi</option>
+            <option value="BOOKMARKED">Ditandai Ibadah</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Bar Chips 13 Kategori Liturgi (Horizontal Scrollable) -->
+      <div id="categoryChips" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <!-- Dirender dinamis lewat JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== AREA KONTEN UTAMA (DAFTAR NOMOR & PEMBACA LIRIK) ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+
+      <!-- KOLOM KIRI: DAFTAR URUT NOMOR KEE (1–474) -->
+      <aside id="listPanel" class="lg:col-span-5 xl:col-span-4 bg-gbkp-surface rounded-2xl border border-gbkp-border shadow-sm overflow-hidden flex flex-col lg:max-h-[calc(100vh-15rem)] lg:sticky lg:top-24">
+        <div class="px-4 py-3.5 bg-gbkp-navy text-gbkp-card flex items-center justify-between gap-2">
+          <div>
+            <h2 class="text-sm sm:text-base font-bold tracking-wide">Daftar Urut KEE GBKP</h2>
+            <p id="resultSummary" class="text-xs text-blue-100/80">Menampilkan 474 dari 474 nomor</p>
+          </div>
+          <button
+            type="button"
+            onclick="fetchSongsFromSupabase(true)"
+            title="Sinkronkan ulang dari Supabase"
+            class="p-2 rounded-xl bg-white/12 hover:bg-white/20 text-gbkp-surface transition"
+            aria-label="Sinkronkan Ulang"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+
+        <div id="songListContainer" class="divide-y divide-gbkp-border overflow-y-auto max-h-[65vh] lg:max-h-none flex-1">
+          <!-- Daftar 1-474 dirender dinamis -->
+        </div>
+      </aside>
+
+      <!-- KOLOM KANAN: PANEL PEMBACA LIRIK & KONTROL IBADAH -->
+      <section id="readerPanel" class="lg:col-span-7 xl:col-span-8 bg-gbkp-surface rounded-2xl border border-gbkp-border shadow-sm overflow-hidden">
+        <!-- Navigasi Kembali ke Daftar (Mobile/Tablet) -->
+        <div class="lg:hidden px-4 py-2.5 bg-gbkp-card border-b border-gbkp-border flex items-center justify-between">
+          <button
+            type="button"
+            onclick="scrollToList()"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-gbkp-blue hover:text-gbkp-navy py-1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Ke Daftar Nomor KEE</span>
+          </button>
+          <span id="mobileReaderBadge" class="text-xs font-bold text-gbkp-muted">KEE No. 1</span>
+        </div>
+
+        <!-- Header Detail Lagu Aktif -->
+        <div class="p-5 sm:p-6 lg:p-7 border-b border-gbkp-border bg-gradient-to-b from-gbkp-card/70 to-gbkp-surface">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="readerNumberBadge" class="px-3 py-1 rounded-xl bg-gbkp-navy text-gbkp-surface text-sm font-extrabold tracking-wide shadow-xs">
+                KEE No. 1
+              </span>
+              <span id="readerCategoryBadge" class="px-3 py-1 rounded-xl bg-gbkp-canvas text-gbkp-blue border border-gbkp-border text-xs sm:text-sm font-semibold">
+                Pujin ras Sembah
+              </span>
+              <span id="readerStatusBadge" class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold">
+                Belum Terisi
+              </span>
+            </div>
+
+            <!-- Tombol Tandai untuk Tata Ibadah -->
+            <button
+              id="readerBookmarkBtn"
+              type="button"
+              onclick="toggleCurrentBookmark()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gbkp-border bg-gbkp-card hover:bg-gbkp-canvas text-xs sm:text-sm font-semibold text-gbkp-text transition"
+            >
+              <svg id="readerBookmarkIcon" class="w-4 h-4 text-gbkp-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <span id="readerBookmarkLabel">Tandai Ibadah</span>
+            </button>
+          </div>
+
+          <h2 id="readerTitle" class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gbkp-navy leading-snug">
+            Belum Terisi — KEE No. 1
+          </h2>
+
+          <!-- Info Kontributor & Waktu Pembaruan Terakhir -->
+          <div id="readerMetaInfo" class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gbkp-muted">
+            <span>Belum ada kontribusi data pada nomor ini.</span>
+          </div>
+
+          <!-- Toolbar Kontrol Pembaca Lirik -->
+          <div class="mt-4 pt-4 border-t border-gbkp-border/80 flex flex-wrap items-center justify-between gap-2.5">
+            <!-- Pengatur Ukuran Huruf (A- / A+) -->
+            <div class="inline-flex items-center bg-gbkp-canvas rounded-xl p-1 border border-gbkp-border">
+              <button
+                type="button"
+                onclick="changeFontSize(-2)"
+                title="Perkecil Ukuran Teks"
+                class="px-3 py-1.5 rounded-lg hover:bg-gbkp-surface active:scale-95 text-gbkp-navy font-bold text-sm transition"
+              >
+                A-
+              </button>
+              <span id="fontSizeIndicator" class="px-2.5 text-xs font-semibold text-gbkp-muted select-none">
+                18px
+              </span>
+              <button
+                type="button"
+                onclick="changeFontSize(2)"
+                title="Perbesar Ukuran Teks"
+                class="px-3 py-1.5 rounded-lg hover:bg-gbkp-surface active:scale-95 text-gbkp-navy font-bold text-sm transition"
+              >
+                A+
+              </button>
+            </div>
+
+            <!-- Tombol Aksi: Salin Lirik, Isi/Edit Lagu (Dilindungi PIN), & Mode Proyektor -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                id="copyLyricsBtn"
+                type="button"
+                onclick="copyCurrentLyrics()"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gbkp-card hover:bg-gbkp-canvas active:scale-95 border border-gbkp-border text-gbkp-navy text-xs sm:text-sm font-semibold disabled:opacity-40 disabled:pointer-events-none transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Salin Lirik</span>
+              </button>
+
+              <button
+                id="editLyricsBtn"
+                type="button"
+                onclick="requireEditorAccess(() => openSongModal(currentSongNo))"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gbkp-card hover:bg-gbkp-canvas active:scale-95 border border-gbkp-border text-gbkp-navy text-xs sm:text-sm font-semibold transition"
+              >
+                <svg class="w-4 h-4 text-gbkp-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span id="editLyricsBtnLabel">+ Isi Data Asli</span>
+              </button>
+
+              <button
+                id="projectionBtn"
+                type="button"
+                onclick="openProjectionMode()"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gbkp-navy hover:bg-gbkp-blue active:scale-95 text-gbkp-surface text-xs sm:text-sm font-semibold shadow-sm disabled:opacity-40 disabled:pointer-events-none transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                </svg>
+                <span>Mode Proyektor</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Isi Bait & Lirik Lagu -->
+        <div class="p-5 sm:p-7 lg:p-8 bg-gbkp-surface">
+          <div id="readerLyricsBody" class="space-y-6 text-gbkp-text leading-relaxed" style="font-size: 18px;">
+            <!-- Konten lirik atau placeholder siap diisi -->
+          </div>
+        </div>
+
+        <!-- Navigasi Sebelumnya & Berikutnya -->
+        <div class="px-5 sm:px-7 py-4 bg-gbkp-card border-t border-gbkp-border flex items-center justify-between gap-3">
+          <button
+            id="prevSongBtn"
+            type="button"
+            onclick="navigateSong(-1)"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gbkp-surface hover:bg-gbkp-canvas border border-gbkp-border text-gbkp-navy text-xs sm:text-sm font-semibold shadow-2xs disabled:opacity-40 disabled:pointer-events-none transition"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span id="prevSongLabel">Sebelumnya</span>
+          </button>
+
+          <button
+            id="nextSongBtn"
+            type="button"
+            onclick="navigateSong(1)"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gbkp-surface hover:bg-gbkp-canvas border border-gbkp-border text-gbkp-navy text-xs sm:text-sm font-semibold shadow-2xs disabled:opacity-40 disabled:pointer-events-none transition"
+          >
+            <span id="nextSongLabel">Berikutnya</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-gbkp-navy text-blue-100/80 border-t border-white/10 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="text-center sm:text-left">
+        <span class="font-semibold text-gbkp-surface">Library KEE GBKP</span> — Database Kolaboratif Online Kitab Ende-enden GBKP (No. 1 – 474).
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span>Sinkronisasi Cloud & Realtime</span>
+        <span class="text-white/30">•</span>
+        <span>Siap Ibadah</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL VERIFIKASI PIN EDITOR ==================== -->
+  <div id="pinModal" class="hidden fixed inset-0 z-50 bg-gbkp-navy/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-gbkp-surface w-full max-w-md rounded-2xl border border-gbkp-border shadow-2xl overflow-hidden animate-fade-up">
+      <div class="px-5 py-4 bg-gbkp-navy text-gbkp-surface flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center text-gbkp-gold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold">Verifikasi PIN Editor</h3>
+            <p class="text-xs text-blue-100/80">Masukkan PIN tim untuk mengisi atau mengubah data lagu</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="closePinModal()"
+          class="p-1.5 rounded-xl hover:bg-white/15 text-gbkp-surface transition"
+          aria-label="Tutup modal PIN"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form onsubmit="submitEditorPin(event)" class="p-5 sm:p-6 space-y-4">
+        <div>
+          <label for="pinInput" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+            PIN Editor Tim *
+          </label>
+          <input
+            id="pinInput"
+            type="password"
+            required
+            autocomplete="off"
+            placeholder="Masukkan PIN Editor..."
+            class="w-full px-4 py-3 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-semibold tracking-wider focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+          />
+          <p id="pinErrorText" class="hidden mt-1.5 text-xs font-semibold text-red-700">
+            PIN Editor tidak sesuai. Silakan periksa kembali dan coba lagi.
+          </p>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-gbkp-border">
+          <button
+            type="button"
+            onclick="closePinModal()"
+            class="px-4 py-2.5 rounded-xl bg-gbkp-card hover:bg-gbkp-canvas text-gbkp-text text-sm font-semibold transition"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gbkp-navy hover:bg-gbkp-blue text-gbkp-surface text-sm font-semibold shadow-sm transition"
+          >
+            Buka Mode Editor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL TAMBAH / EDIT LAGU (SUPABASE UPSERT) ==================== -->
+  <div id="songModal" class="hidden fixed inset-0 z-50 bg-gbkp-navy/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-gbkp-surface w-full max-w-2xl rounded-2xl border border-gbkp-border shadow-2xl overflow-hidden animate-fade-up my-auto">
+      <div class="px-5 sm:px-6 py-4 bg-gbkp-navy text-gbkp-surface flex items-center justify-between">
+        <div>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-bold">Isi / Edit Data Asli Lagu KEE</h3>
+          <p class="text-xs text-blue-100/80">Perubahan akan langsung tersimpan ke cloud dan dilihat oleh semua teman</p>
+        </div>
+        <button
+          type="button"
+          onclick="closeSongModal()"
+          class="p-2 rounded-xl hover:bg-white/15 text-gbkp-surface transition"
+          aria-label="Tutup modal edit"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="songForm" onsubmit="saveSongToSupabase(event)" class="p-5 sm:p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="formNumber" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Nomor KEE (1–474) *
+            </label>
+            <input
+              id="formNumber"
+              type="number"
+              min="1"
+              max="474"
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-bold focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="formCategory" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Kategori Liturgi GBKP *
+            </label>
+            <select
+              id="formCategory"
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            ></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="sm:col-span-2">
+            <label for="formTitle" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Judul Asli Lagu (Sesuai Buku KEE) *
+            </label>
+            <input
+              id="formTitle"
+              type="text"
+              required
+              placeholder="Ketik judul asli lagu KEE..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-semibold focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            />
+          </div>
+
+          <div>
+            <label for="formContributor" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Nama Pengisi / Kontributor
+            </label>
+            <input
+              id="formContributor"
+              type="text"
+              placeholder="Contoh: Daniel"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="formLyrics" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+            Lirik Lengkap (Pisahkan antar bait dengan baris kosong, awali Reff dengan "Reff:") *
+          </label>
+          <textarea
+            id="formLyrics"
+            rows="9"
+            required
+            placeholder="1. Bait pertama baris pertama,&#10;Bait pertama baris kedua...&#10;&#10;Reff:&#10;Baris reff pertama...&#10;&#10;2. Bait kedua baris pertama..."
+            class="w-full px-4 py-3 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text text-sm sm:text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+          ></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-gbkp-border">
+          <button
+            type="button"
+            onclick="closeSongModal()"
+            class="px-4 py-2.5 rounded-xl bg-gbkp-card hover:bg-gbkp-canvas text-gbkp-text text-sm font-semibold transition"
+          >
+            Batal
+          </button>
+          <button
+            id="saveSongSubmitBtn"
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gbkp-navy hover:bg-gbkp-blue text-gbkp-surface text-sm font-semibold shadow-sm transition"
+          >
+            Simpan ke Cloud
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL IMPORT JSON MASSAL (BATCH UPSERT) ==================== -->
+  <div id="importModal" class="hidden fixed inset-0 z-50 bg-gbkp-navy/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-gbkp-surface w-full max-w-2xl rounded-2xl border border-gbkp-border shadow-2xl overflow-hidden animate-fade-up my-auto">
+      <div class="px-5 sm:px-6 py-4 bg-gbkp-navy text-gbkp-surface flex items-center justify-between">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold">Import Data Massal KEE GBKP (JSON)</h3>
+          <p class="text-xs text-blue-100/80">Unggah file .json atau tempel kode JSON untuk disimpan secara massal ke Supabase</p>
+        </div>
+        <button
+          type="button"
+          onclick="closeImportModal()"
+          class="p-2 rounded-xl hover:bg-white/15 text-gbkp-surface transition"
+          aria-label="Tutup modal import"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4">
+        <div class="p-3.5 rounded-xl bg-gbkp-card border border-gbkp-border text-xs text-gbkp-text space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-gbkp-navy">Format JSON yang Didukung:</span>
+            <button
+              type="button"
+              onclick="downloadTemplateJSON()"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gbkp-navy text-gbkp-surface font-semibold hover:bg-gbkp-blue transition"
+            >
+              Unduh Template JSON (1–474)
+            </button>
+          </div>
+          <p class="text-gbkp-muted leading-relaxed">
+            Gunakan format array <code class="px-1.5 py-0.5 rounded bg-gbkp-surface border border-gbkp-border font-mono">[{ "number": 1, "title": "...", "category": "...", "lyrics": "..." }]</code> (juga mendukung properti <code class="font-mono">"no"</code> atau <code class="font-mono">{ "songs": [...] }</code>).
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="importContributor" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Nama Kontributor Import
+            </label>
+            <input
+              id="importContributor"
+              type="text"
+              placeholder="Contoh: Daniel"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            />
+          </div>
+
+          <div>
+            <label for="importModeSelect" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+              Mode Penggabungan Data
+            </label>
+            <select
+              id="importModeSelect"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+            >
+              <option value="ONLY_EMPTY">Hanya isi nomor yang masih kosong</option>
+              <option value="OVERWRITE">Timpa data lama jika nomor sudah terisi</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="jsonFileInput" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+            1. Pilih File .JSON dari Perangkat
+          </label>
+          <input
+            id="jsonFileInput"
+            type="file"
+            accept=".json,application/json"
+            onchange="handleJsonFileUpload(event)"
+            class="block w-full text-xs sm:text-sm text-gbkp-text file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-gbkp-navy file:text-gbkp-surface hover:file:bg-gbkp-blue bg-gbkp-card border border-gbkp-border rounded-xl cursor-pointer"
+          />
+        </div>
+
+        <div>
+          <label for="jsonPasteArea" class="block text-xs font-bold uppercase tracking-wider text-gbkp-muted mb-1.5">
+            2. Atau Tempel (Paste) Kode JSON Langsung di Sini
+          </label>
+          <textarea
+            id="jsonPasteArea"
+            rows="7"
+            placeholder='[&#10;  {&#10;    "number": 1,&#10;    "title": "Judul Asli KEE No. 1",&#10;    "category": "Pujin ras Sembah",&#10;    "lyrics": "1. Bait 1 baris 1\nBait 1 baris 2\n\n2. Bait 2 baris 1"&#10;  }&#10;]'
+            class="w-full px-3.5 py-3 rounded-xl bg-gbkp-card border border-gbkp-border text-gbkp-text font-mono text-xs sm:text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-gbkp-blue"
+          ></textarea>
+        </div>
+
+        <div id="importErrorBox" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 font-medium"></div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-gbkp-border">
+          <button
+            type="button"
+            onclick="closeImportModal()"
+            class="px-4 py-2.5 rounded-xl bg-gbkp-card hover:bg-gbkp-canvas text-gbkp-text text-sm font-semibold transition"
+          >
+            Batal
+          </button>
+          <button
+            id="importSubmitBtn"
+            type="button"
+            onclick="processJsonBatchImport()"
+            class="px-5 py-2.5 rounded-xl bg-gbkp-navy hover:bg-gbkp-blue text-gbkp-surface text-sm font-semibold shadow-sm transition"
+          >
+            Unggah ke Supabase
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODE PROYEKTOR IBADAH LAYAR PENUH ==================== -->
+  <div id="projectionOverlay" class="hidden fixed inset-0 z-50 bg-gbkp-navy text-gbkp-surface flex flex-col justify-between select-none">
+    <div class="px-5 sm:px-8 py-4 bg-gbkp-blue/65 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span id="projNumberBadge" class="px-3.5 py-1 rounded-xl bg-gbkp-surface text-gbkp-navy font-extrabold text-sm sm:text-base">
+          KEE No. 1
+        </span>
+        <div>
+          <h3 id="projTitle" class="text-base sm:text-xl font-bold text-gbkp-surface leading-tight">
+            Judul Lagu
+          </h3>
+          <p id="projCategory" class="text-xs text-blue-200">
+            Pujin ras Sembah
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button
+          id="projViewModeBtn"
+          type="button"
+          onclick="toggleProjectionViewMode()"
+          class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-xs sm:text-sm font-semibold border border-white/15 transition"
+        >
+          Tampilan: Per Bait
+        </button>
+
+        <button
+          type="button"
+          onclick="closeProjectionMode()"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600/90 hover:bg-red-600 text-white text-xs sm:text-sm font-semibold transition"
+        >
+          <span>Tutup (Esc)</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center px-6 sm:px-14 lg:px-24 py-6 overflow-y-auto text-center">
+      <div id="projSlideText" class="max-w-5xl mx-auto text-2xl sm:text-4xl lg:text-5xl font-bold leading-relaxed tracking-wide text-gbkp-surface whitespace-pre-line">
+        <!-- Teks bait aktif untuk layar gereja -->
+      </div>
+    </div>
+
+    <div class="px-5 sm:px-8 py-4 bg-gbkp-blue/65 border-t border-white/10 flex items-center justify-between gap-4">
+      <button
+        id="projPrevBtn"
+        type="button"
+        onclick="changeProjectionSlide(-1)"
+        class="inline-flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl bg-white/15 hover:bg-white/25 disabled:opacity-35 text-sm sm:text-base font-semibold transition"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>Bait Sebelumnya</span>
+      </button>
+
+      <div id="projSlideIndicator" class="text-sm sm:text-base font-bold text-blue-100">
+        Bait 1 / 1
+      </div>
+
+      <button
+        id="projNextBtn"
+        type="button"
+        onclick="changeProjectionSlide(1)"
+        class="inline-flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl bg-gbkp-surface text-gbkp-navy hover:bg-blue-50 disabled:opacity-35 text-sm sm:text-base font-bold transition"
+      >
+        <span>Bait Berikutnya</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== NOTIFIKASI TOAST ==================== -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 pointer-events-none flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- ==================== LOGIKA APLIKASI, SUPABASE REALTIME & PIN EDITOR ==================== -->
+  <script>
+    // ==================== KONFIGURASI SUPABASE & KEAMANAN ====================
+    const SUPABASE_URL = 'https://ndvyabbqvldjuueajnfy.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_tN7QnKSzZ15pVkkWI0DFPQ_rDMgmp9K';
+    const EDITOR_PIN = 'gbkpharapanindah21';
+    const MAX_KEE_NUMBER = 474;
+
+    // Kunci penyimpanan lokal & sesi
+    const CACHE_KEY = 'library_kee_gbkp_supabase_cache_v1';
+    const BOOKMARK_KEY = 'library_kee_gbkp_ibadah_bookmarks_v1';
+    const CONTRIBUTOR_KEY = 'library_kee_gbkp_contributor_name_v1';
+    const EDITOR_SESSION_KEY = 'library_kee_gbkp_editor_unlocked_v1';
+
+    // 13 Kategori Liturgi Resmi GBKP sesuai rentang nomor SQL
+    const LITURGICAL_CATEGORIES = [
+      { id: 1, name: 'Pujin ras Sembah', start: 1, end: 45 },
+      { id: 2, name: 'Pengakun Dosa', start: 46, end: 75 },
+      { id: 3, name: 'Kata Dibata ras Kiniteken', start: 76, end: 115 },
+      { id: 4, name: 'Persembahen', start: 116, end: 140 },
+      { id: 5, name: 'Adven ras Wari Natal', start: 141, end: 185 },
+      { id: 6, name: 'Kiniseran ras Wari Paskah', start: 186, end: 230 },
+      { id: 7, name: 'Kenaiken ras Pentakosta', start: 231, end: 265 },
+      { id: 8, name: 'Perpulungen ras Berita Si Meriah', start: 266, end: 310 },
+      { id: 9, name: 'Peridin ras Perpadanen Si Badia', start: 311, end: 335 },
+      { id: 10, name: 'Perjabun ras Jabu Kristen', start: 336, end: 360 },
+      { id: 11, name: 'Erpagi-pagi ras Erberngi', start: 361, end: 390 },
+      { id: 12, name: 'Pengapul ras Penguburen', start: 391, end: 425 },
+      { id: 13, name: 'Ende-enden Tambahen', start: 426, end: 474 },
+    ];
+
+    // State Global Aplikasi
+    let supabaseClient = null;
+    let realtimeChannel = null;
+    let pollingIntervalId = null;
+    let songsDatabase = [];
+    let currentSongNo = 1;
+    let activeCategory = 'ALL';
+    let activeStatus = 'ALL';
+    let searchQuery = '';
+    let readerFontSize = 18;
+    let bookmarkedNos = new Set();
+    let pendingEditorCallback = null;
+
+    // State Mode Proyektor
+    let projectionSlides = [];
+    let projectionSlideIndex = 0;
+    let projectionFullSongMode = false;
+
+    /**
+     * ==================== TANGGAL & JAM REAL-TIME (WIB) ====================
+     */
+    function updateRealtimeClock() {
+      const now = new Date();
+      const dateEl = document.getElementById('realtimeDate');
+      const clockEl = document.getElementById('realtimeClock');
+      if (!dateEl || !clockEl) return;
+
+      try {
+        const dateFormatter = new Intl.DateTimeFormat('id-ID', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'Asia/Jakarta'
+        });
+
+        const timeFormatter = new Intl.DateTimeFormat('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+          timeZone: 'Asia/Jakarta'
+        });
+
+        dateEl.textContent = dateFormatter.format(now);
+        clockEl.textContent = `${timeFormatter.format(now).replace(/\./g, ':')} WIB`;
+      } catch (e) {
+        dateEl.textContent = now.toLocaleDateString('id-ID');
+        clockEl.textContent = `${now.toLocaleTimeString('id-ID')} WIB`;
+      }
+    }
+
+    /**
+     * ==================== HELPER DATABASE & CACHE LOKAL ====================
+     */
+    function getDefaultCategoryName(number) {
+      const found = LITURGICAL_CATEGORIES.find((cat) => number >= cat.start && number <= cat.end);
+      return found ? found.name : 'Ende-enden Tambahen';
+    }
+
+    function buildEmptyFramework() {
+      const list = [];
+      for (let i = 1; i <= MAX_KEE_NUMBER; i++) {
+        list.push({
+          number: i,
+          title: '',
+          category: getDefaultCategoryName(i),
+          lyrics: '',
+          updated_by: '',
+          updated_at: null
+        });
+      }
+      return list;
+    }
+
+    function isSongFilled(song) {
+      return Boolean(
+        song &&
+        typeof song.title === 'string' &&
+        song.title.trim().length > 0 &&
+        typeof song.lyrics === 'string' &&
+        song.lyrics.trim().length > 0
+      );
+    }
+
+    function mergeRowsIntoDatabase(rows) {
+      if (!Array.isArray(rows)) return;
+      const mapByNo = new Map(songsDatabase.map((item) => [item.number, item]));
+
+      rows.forEach((row) => {
+        if (!row || typeof row !== 'object') return;
+        const num = Number(row.number);
+        if (!num || num < 1 || num > MAX_KEE_NUMBER) return;
+
+        const existing = mapByNo.get(num) || {
+          number: num,
+          title: '',
+          category: getDefaultCategoryName(num),
+          lyrics: '',
+          updated_by: '',
+          updated_at: null
+        };
+
+        mapByNo.set(num, {
+          number: num,
+          title: typeof row.title === 'string' ? row.title : existing.title,
+          category: (typeof row.category === 'string' && row.category.trim()) ? row.category.trim() : existing.category,
+          lyrics: typeof row.lyrics === 'string' ? row.lyrics : existing.lyrics,
+          updated_by: typeof row.updated_by === 'string' ? row.updated_by : existing.updated_by,
+          updated_at: row.updated_at !== undefined ? row.updated_at : existing.updated_at
+        });
+      });
+
+      songsDatabase = Array.from(mapByNo.values()).sort((a, b) => a.number - b.number);
+    }
+
+    function loadInitialCacheAndBookmarks() {
+      songsDatabase = buildEmptyFramework();
+      try {
+        const cachedRaw = localStorage.getItem(CACHE_KEY);
+        if (cachedRaw) {
+          const parsed = JSON.parse(cachedRaw);
+          if (Array.isArray(parsed)) {
+            mergeRowsIntoDatabase(parsed);
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal membaca cache lokal:', e);
+      }
+
+      try {
+        const bmRaw = localStorage.getItem(BOOKMARK_KEY);
+        if (bmRaw) {
+          const parsedBm = JSON.parse(bmRaw);
+          if (Array.isArray(parsedBm)) {
+            bookmarkedNos = new Set(parsedBm.map(Number));
+          }
+        }
+      } catch (e) {
+        bookmarkedNos = new Set();
+      }
+    }
+
+    function saveDatabaseCache() {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(songsDatabase));
+      } catch (e) {
+        console.warn('Gagal menyimpan cache lokal:', e);
+      }
+    }
+
+    function saveBookmarksToStorage() {
+      try {
+        localStorage.setItem(BOOKMARK_KEY, JSON.stringify(Array.from(bookmarkedNos)));
+      } catch (e) {
+        console.warn('Gagal menyimpan penanda ibadah:', e);
+      }
+    }
+
+    function setConnectionStatus(state, text) {
+      const badge = document.getElementById('connectionBadge');
+      const dot = document.getElementById('connectionDot');
+      const label = document.getElementById('connectionText');
+      if (!badge || !dot || !label) return;
+
+      label.textContent = text;
+
+      if (state === 'ONLINE') {
+        badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-100 border border-emerald-300/35';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+      } else if (state === 'CONNECTING') {
+        badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-100 border border-amber-300/30';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-300 animate-pulse';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-100 border border-red-300/35';
+        dot.className = 'w-2 h-2 rounded-full bg-red-400';
+      }
+    }
+
+    /**
+     * Memeriksa apakah WebSocket diizinkan di lingkungan browser saat ini (Canvas vs GitHub Pages)
+     */
+    function isWebSocketAllowed() {
+      try {
+        if (typeof WebSocket === 'undefined') return false;
+        // Lingkungan preview sandbox/iframe tertentu membatasi WebSocket
+        const isSandboxedPreview = window.self !== window.top && (
+          window.location.protocol === 'about:' ||
+          window.location.protocol === 'blob:' ||
+          window.location.hostname.includes('usercontent') ||
+          window.location.hostname.includes('webcontainer')
+        );
+        return !isSandboxedPreview;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    /**
+     * Mengaktifkan sinkronisasi berkala via HTTPS REST jika WebSocket dibatasi oleh sandbox
+     */
+    function startFallbackPollingSync() {
+      if (pollingIntervalId) clearInterval(pollingIntervalId);
+      setConnectionStatus('ONLINE', 'Online • Auto-Sync');
+      pollingIntervalId = setInterval(() => {
+        if (!document.hidden) {
+          fetchSongsFromSupabase(false, true);
+        }
+      }, 15000);
+    }
+
+    /**
+     * Inisialisasi Koneksi Supabase & Subscribe Realtime (dengan Fallback Auto-Sync aman)
+     */
+    async function initSupabaseAndRealtime() {
+      if (!window.supabase || !window.supabase.createClient) {
+        setConnectionStatus('OFFLINE', 'SDK Supabase Tidak Termuat');
+        return;
+      }
+
+      try {
+        setConnectionStatus('CONNECTING', 'Menghubungkan...');
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          realtime: {
+            params: { eventsPerSecond: 5 }
+          }
+        });
+
+        // Ambil data awal dari tabel lagu_kee via HTTPS REST
+        await fetchSongsFromSupabase(false);
+
+        // Jika WebSocket diblokir oleh lingkungan sandbox/Canvas, gunakan HTTPS Auto-Sync
+        if (!isWebSocketAllowed()) {
+          startFallbackPollingSync();
+          return;
+        }
+
+        // Coba aktifkan langganan Realtime WebSocket (aktif penuh saat di GitHub Pages)
+        try {
+          realtimeChannel = supabaseClient
+            .channel('public:lagu_kee')
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'lagu_kee' },
+              (payload) => {
+                const record = payload.new || payload.old;
+                if (!record || !record.number) return;
+
+                if (payload.eventType === 'DELETE') {
+                  const num = Number(record.number);
+                  mergeRowsIntoDatabase([{
+                    number: num,
+                    title: '',
+                    category: getDefaultCategoryName(num),
+                    lyrics: '',
+                    updated_by: '',
+                    updated_at: null
+                  }]);
+                } else {
+                  mergeRowsIntoDatabase([record]);
+                }
+
+                saveDatabaseCache();
+                updateDashboardStats();
+                selectSong(currentSongNo, false);
+
+                const actor = record.updated_by && record.updated_by.trim()
+                  ? ` oleh ${record.updated_by.trim()}`
+                  : '';
+                showToast(`KEE No. ${record.number} diperbarui${actor}`);
+              }
+            )
+            .subscribe((status) => {
+              if (status === 'SUBSCRIBED') {
+                setConnectionStatus('ONLINE', 'Online • Realtime Sync');
+              } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                startFallbackPollingSync();
+              }
+            });
+        } catch (wsErr) {
+          // Tangkap SecurityError jika sandbox memblokir konstruktor WebSocket
+          console.info('WebSocket dibatasi lingkungan preview, beralih ke Auto-Sync HTTPS.');
+          startFallbackPollingSync();
+        }
+      } catch (err) {
+        console.error('Kesalahan inisialisasi Supabase:', err);
+        setConnectionStatus('OFFLINE', 'Offline (Cache Lokal)');
+      }
+    }
+
+    /**
+     * Mengambil seluruh baris dari tabel `lagu_kee` di Supabase
+     */
+    async function fetchSongsFromSupabase(showFeedbackToast = false, isSilentBackground = false) {
+      if (!supabaseClient) return;
+
+      try {
+        if (!isSilentBackground) {
+          setConnectionStatus('CONNECTING', 'Menyinkronkan...');
+        }
+        const { data, error } = await supabaseClient
+          .from('lagu_kee')
+          .select('number, title, category, lyrics, updated_by, updated_at')
+          .order('number', { ascending: true });
+
+        if (error) {
+          throw error;
+        }
+
+        if (Array.isArray(data)) {
+          mergeRowsIntoDatabase(data);
+          saveDatabaseCache();
+          updateDashboardStats();
+          selectSong(currentSongNo, false);
+        }
+
+        setConnectionStatus('ONLINE', pollingIntervalId ? 'Online • Auto-Sync' : 'Online • Realtime Sync');
+        if (showFeedbackToast) {
+          showToast('Database berhasil disinkronkan dengan Supabase!');
+        }
+      } catch (err) {
+        console.error('Gagal mengambil data dari Supabase:', err);
+        setConnectionStatus('OFFLINE', 'Offline (Cache Lokal)');
+        if (showFeedbackToast) {
+          showToast('Gagal terhubung ke Supabase. Menampilkan cache lokal.', 'error');
+        }
+      }
+    }
+
+    /**
+     * ==================== SISTEM PIN EDITOR (sessionStorage) ====================
+     */
+    function isEditorUnlocked() {
+      return sessionStorage.getItem(EDITOR_SESSION_KEY) === 'true';
+    }
+
+    function updateEditorLockUI() {
+      const unlocked = isEditorUnlocked();
+      const desktopBtn = document.getElementById('desktopEditorLockBtn');
+      const desktopLabel = document.getElementById('desktopEditorLockLabel');
+      const desktopIcon = document.getElementById('desktopLockIcon');
+      const mobileIcon = document.getElementById('mobileLockIcon');
+
+      if (unlocked) {
+        if (desktopBtn) {
+          desktopBtn.className = 'hidden lg:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-100 text-xs font-semibold border border-emerald-300/35 transition';
+        }
+        if (desktopLabel) desktopLabel.textContent = 'Editor Aktif (Kunci)';
+        const unlockSvg = '<path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />';
+        if (desktopIcon) {
+          desktopIcon.innerHTML = unlockSvg;
+          desktopIcon.className = 'w-4 h-4 text-emerald-300';
+        }
+        if (mobileIcon) {
+          mobileIcon.innerHTML = unlockSvg;
+          mobileIcon.className = 'w-5 h-5 text-emerald-300';
+        }
+      } else {
+        if (desktopBtn) {
+          desktopBtn.className = 'hidden lg:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/12 hover:bg-white/20 active:scale-95 text-gbkp-surface text-xs font-semibold border border-white/20 transition';
+        }
+        if (desktopLabel) desktopLabel.textContent = 'Mode Baca (Buka Editor)';
+        const lockSvg = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />';
+        if (desktopIcon) {
+          desktopIcon.innerHTML = lockSvg;
+          desktopIcon.className = 'w-4 h-4 text-gbkp-gold';
+        }
+        if (mobileIcon) {
+          mobileIcon.innerHTML = lockSvg;
+          mobileIcon.className = 'w-5 h-5 text-gbkp-gold';
+        }
+      }
+    }
+
+    function handleEditorLockToggle() {
+      if (isEditorUnlocked()) {
+        sessionStorage.removeItem(EDITOR_SESSION_KEY);
+        updateEditorLockUI();
+        showToast('Mode Editor dikunci kembali ke Mode Baca.');
+      } else {
+        openPinModal(null);
+      }
+    }
+
+    function requireEditorAccess(callback) {
+      if (isEditorUnlocked()) {
+        if (typeof callback === 'function') callback();
+      } else {
+        openPinModal(callback);
+      }
+    }
+
+    function openPinModal(callback = null) {
+      pendingEditorCallback = callback;
+      const input = document.getElementById('pinInput');
+      const errText = document.getElementById('pinErrorText');
+      input.value = '';
+      errText.classList.add('hidden');
+      document.getElementById('pinModal').classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closePinModal() {
+      pendingEditorCallback = null;
+      document.getElementById('pinModal').classList.add('hidden');
+    }
+
+    function submitEditorPin(event) {
+      event.preventDefault();
+      const input = document.getElementById('pinInput');
+      const errText = document.getElementById('pinErrorText');
+      const entered = input.value.trim();
+
+      if (entered === EDITOR_PIN) {
+        sessionStorage.setItem(EDITOR_SESSION_KEY, 'true');
+        updateEditorLockUI();
+        const cb = pendingEditorCallback;
+        closePinModal();
+        showToast('Mode Editor aktif! Anda sekarang dapat mengisi & mengedit lagu.');
+        if (typeof cb === 'function') cb();
+      } else {
+        errText.classList.remove('hidden');
+        input.select();
+      }
+    }
+
+    /**
+     * ==================== DASBOR STATISTIK & FILTER ====================
+     */
+    function updateDashboardStats() {
+      const total = songsDatabase.length;
+      const filledCount = songsDatabase.filter(isSongFilled).length;
+      const emptyCount = total - filledCount;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statFilled').textContent = filledCount;
+      document.getElementById('statEmpty').textContent = emptyCount;
+      document.getElementById('statBookmarked').textContent = bookmarkedNos.size;
+    }
+
+    function renderCategoryFilters() {
+      const selectEl = document.getElementById('categorySelect');
+      const formSelectEl = document.getElementById('formCategory');
+      const chipsEl = document.getElementById('categoryChips');
+
+      selectEl.innerHTML = `<option value="ALL">Semua Kategori Liturgi (${MAX_KEE_NUMBER})</option>`;
+      formSelectEl.innerHTML = '';
+
+      LITURGICAL_CATEGORIES.forEach((cat) => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = `${cat.id}. ${cat.name} (${cat.start}–${cat.end})`;
+        selectEl.appendChild(opt);
+
+        const formOpt = document.createElement('option');
+        formOpt.value = cat.name;
+        formOpt.textContent = `${cat.id}. ${cat.name}`;
+        formSelectEl.appendChild(formOpt);
+      });
+
+      const allChip = `
+        <button
+          type="button"
+          onclick="setActiveCategory('ALL')"
+          class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition ${
+            activeCategory === 'ALL'
+              ? 'bg-gbkp-navy text-gbkp-surface border-gbkp-navy shadow-xs'
+              : 'bg-gbkp-surface text-gbkp-text border-gbkp-border hover:bg-gbkp-canvas'
+          }"
+        >
+          Semua (${MAX_KEE_NUMBER})
+        </button>
+      `;
+
+      const categoryChipsHtml = LITURGICAL_CATEGORIES.map((cat) => {
+        const isActive = activeCategory === cat.name;
+        return `
+          <button
+            type="button"
+            onclick="setActiveCategory('${cat.name.replace(/'/g, "\\'")}')"
+            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition ${
+              isActive
+                ? 'bg-gbkp-navy text-gbkp-surface border-gbkp-navy shadow-xs'
+                : 'bg-gbkp-surface text-gbkp-text border-gbkp-border hover:bg-gbkp-canvas'
+            }"
+          >
+            ${cat.id}. ${cat.name} <span class="opacity-75">(${cat.start}–${cat.end})</span>
+          </button>
+        `;
+      }).join('');
+
+      chipsEl.innerHTML = allChip + categoryChipsHtml;
+    }
+
+    function setActiveCategory(catName) {
+      activeCategory = catName;
+      document.getElementById('categorySelect').value = catName;
+      renderCategoryFilters();
+      renderSongList();
+    }
+
+    function getFilteredSongs() {
+      const q = searchQuery.trim().toLowerCase();
+      return songsDatabase.filter((song) => {
+        if (activeCategory !== 'ALL' && song.category !== activeCategory) return false;
+
+        const filled = isSongFilled(song);
+        if (activeStatus === 'FILLED' && !filled) return false;
+        if (activeStatus === 'EMPTY' && filled) return false;
+        if (activeStatus === 'BOOKMARKED' && !bookmarkedNos.has(song.number)) return false;
+
+        if (!q) return true;
+
+        const noStr = String(song.number);
+        const matchNo = noStr === q || noStr.startsWith(q) || `kee ${noStr}`.includes(q) || `no. ${noStr}`.includes(q);
+        const matchTitle = song.title.toLowerCase().includes(q);
+        const matchCategory = song.category.toLowerCase().includes(q);
+        const matchLyrics = song.lyrics.toLowerCase().includes(q);
+        const matchContributor = (song.updated_by || '').toLowerCase().includes(q);
+
+        return matchNo || matchTitle || matchCategory || matchLyrics || matchContributor;
+      });
+    }
+
+    function renderSongList() {
+      const container = document.getElementById('songListContainer');
+      const summaryEl = document.getElementById('resultSummary');
+      const filtered = getFilteredSongs();
+
+      summaryEl.textContent = `Menampilkan ${filtered.length} dari ${songsDatabase.length} nomor`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-gbkp-canvas mx-auto flex items-center justify-center text-gbkp-muted">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p class="text-sm font-bold text-gbkp-navy">Nomor atau lagu tidak ditemukan</p>
+            <p class="text-xs text-gbkp-muted">Coba ubah kata kunci pencarian, status kelengkapan, atau kategori liturgi.</p>
+            <button
+              type="button"
+              onclick="resetFilters()"
+              class="px-4 py-2 rounded-xl bg-gbkp-navy text-gbkp-surface text-xs font-semibold hover:bg-gbkp-blue transition"
+            >
+              Reset Filter
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map((song) => {
+        const isSelected = song.number === currentSongNo;
+        const isBookmarked = bookmarkedNos.has(song.number);
+        const filled = isSongFilled(song);
+        const contributor = song.updated_by && song.updated_by.trim() ? song.updated_by.trim() : '';
+
+        return `
+          <div
+            onclick="selectSong(${song.number}, true)"
+            role="button"
+            tabindex="0"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSong(${song.number}, true);}"
+            class="w-full text-left px-4 py-3.5 transition flex items-start justify-between gap-3 cursor-pointer ${
+              isSelected
+                ? 'bg-gbkp-blue text-gbkp-surface'
+                : 'hover:bg-gbkp-card text-gbkp-text'
+            }"
+          >
+            <div class="flex items-start gap-3 min-w-0 flex-1">
+              <span class="shrink-0 w-11 h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm font-extrabold tabular-nums ${
+                isSelected
+                  ? 'bg-gbkp-surface text-gbkp-navy shadow-xs'
+                  : filled
+                    ? 'bg-gbkp-navy/10 text-gbkp-navy'
+                    : 'bg-gbkp-canvas text-gbkp-muted border border-gbkp-border'
+              }">
+                ${song.number}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold truncate ${
+                  isSelected
+                    ? 'text-gbkp-surface'
+                    : filled
+                      ? 'text-gbkp-navy'
+                      : 'text-gbkp-muted italic font-medium'
+                }">
+                  ${filled ? escapeHtml(song.title) : `Belum Terisi — KEE No. ${song.number}`}
+                </p>
+
+                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span class="text-[11px] truncate ${
+                    isSelected ? 'text-blue-100/90' : 'text-gbkp-muted'
+                  }">
+                    ${escapeHtml(song.category)}
+                  </span>
+                  ${
+                    filled
+                      ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                          isSelected ? 'bg-emerald-400/20 text-emerald-100' : 'bg-emerald-100 text-emerald-800'
+                        }">Terisi</span>`
+                      : `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                          isSelected ? 'bg-amber-400/20 text-amber-100' : 'bg-amber-100 text-amber-800'
+                        }">Kosong</span>`
+                  }
+                </div>
+
+                ${
+                  contributor
+                    ? `<p class="text-[11px] mt-1 truncate ${isSelected ? 'text-blue-100/80' : 'text-gbkp-muted'}">Diisi oleh <span class="font-semibold">${escapeHtml(contributor)}</span></p>`
+                    : ''
+                }
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+              ${
+                !filled
+                  ? `<button
+                      type="button"
+                      onclick="event.stopPropagation(); requireEditorAccess(() => openSongModal(${song.number}))"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+                        isSelected
+                          ? 'bg-white/20 text-white hover:bg-white/30'
+                          : 'bg-gbkp-card border border-gbkp-border text-gbkp-blue hover:bg-gbkp-navy hover:text-white'
+                      }"
+                    >
+                      + Isi
+                    </button>`
+                  : ''
+              }
+              <button
+                type="button"
+                onclick="event.stopPropagation(); toggleBookmarkByNo(${song.number})"
+                title="${isBookmarked ? 'Hapus Penanda Ibadah' : 'Tandai untuk Ibadah'}"
+                class="p-1.5 rounded-lg transition ${
+                  isSelected ? 'hover:bg-white/15' : 'hover:bg-gbkp-canvas'
+                }"
+              >
+                <svg class="w-4 h-4 ${
+                  isBookmarked
+                    ? 'text-gbkp-gold fill-gbkp-gold'
+                    : isSelected ? 'text-blue-200/70' : 'text-gbkp-muted/60'
+                }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /**
+     * ==================== PANEL PEMBACA LIRIK ====================
+     */
+    function selectSong(number, scrollOnMobile = false) {
+      const song = songsDatabase.find((s) => s.number === Number(number)) || songsDatabase[0];
+      if (!song) return;
+
+      currentSongNo = song.number;
+      const filled = isSongFilled(song);
+
+      document.getElementById('readerNumberBadge').textContent = `KEE No. ${song.number}`;
+      document.getElementById('mobileReaderBadge').textContent = `KEE No. ${song.number}`;
+      document.getElementById('readerCategoryBadge').textContent = song.category;
+
+      const statusBadge = document.getElementById('readerStatusBadge');
+      if (filled) {
+        statusBadge.textContent = 'Sudah Terisi';
+        statusBadge.className = 'px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold';
+      } else {
+        statusBadge.textContent = 'Belum Terisi';
+        statusBadge.className = 'px-2.5 py-1 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold';
+      }
+
+      const titleEl = document.getElementById('readerTitle');
+      if (filled) {
+        titleEl.textContent = song.title;
+        titleEl.className = 'text-xl sm:text-2xl lg:text-3xl font-extrabold text-gbkp-navy leading-snug';
+      } else {
+        titleEl.textContent = `Belum Terisi — KEE No. ${song.number}`;
+        titleEl.className = 'text-xl sm:text-2xl lg:text-3xl font-bold text-gbkp-muted italic leading-snug';
+      }
+
+      // Metadata kontributor & waktu pembaruan terakhir
+      const metaEl = document.getElementById('readerMetaInfo');
+      if (filled) {
+        const contributor = song.updated_by && song.updated_by.trim() ? escapeHtml(song.updated_by.trim()) : 'Tim Editor KEE';
+        const formattedTime = song.updated_at
+          ? new Intl.DateTimeFormat('id-ID', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Asia/Jakarta'
+            }).format(new Date(song.updated_at)).replace(/\./g, ':') + ' WIB'
+          : 'Tersinkronisasi';
+        metaEl.innerHTML = `
+          <span>Diisi oleh <strong class="text-gbkp-navy">${contributor}</strong></span>
+          <span>•</span>
+          <span>Pembaruan terakhir: ${formattedTime}</span>
+        `;
+      } else {
+        metaEl.innerHTML = '<span>Nomor ini siap diisi bersama tim melalui Mode Editor.</span>';
+      }
+
+      // Sesuaikan tombol aksi pembaca
+      document.getElementById('copyLyricsBtn').disabled = !filled;
+      document.getElementById('projectionBtn').disabled = !filled;
+      document.getElementById('editLyricsBtnLabel').textContent = filled ? 'Edit Lagu' : '+ Isi Data Asli';
+
+      // Perbarui status penanda ibadah
+      const isBookmarked = bookmarkedNos.has(song.number);
+      const bmBtn = document.getElementById('readerBookmarkBtn');
+      const bmIcon = document.getElementById('readerBookmarkIcon');
+      const bmLabel = document.getElementById('readerBookmarkLabel');
+
+      if (isBookmarked) {
+        bmBtn.classList.add('bg-amber-50', 'border-amber-300', 'text-amber-900');
+        bmBtn.classList.remove('bg-gbkp-card', 'border-gbkp-border', 'text-gbkp-text');
+        bmIcon.classList.add('text-gbkp-gold', 'fill-gbkp-gold');
+        bmIcon.classList.remove('text-gbkp-muted');
+        bmLabel.textContent = 'Ditandai Ibadah';
+      } else {
+        bmBtn.classList.remove('bg-amber-50', 'border-amber-300', 'text-amber-900');
+        bmBtn.classList.add('bg-gbkp-card', 'border-gbkp-border', 'text-gbkp-text');
+        bmIcon.classList.remove('text-gbkp-gold', 'fill-gbkp-gold');
+        bmIcon.classList.add('text-gbkp-muted');
+        bmLabel.textContent = 'Tandai Ibadah';
+      }
+
+      // Render bait lirik atau kartu kosong siap diisi
+      const lyricsContainer = document.getElementById('readerLyricsBody');
+      lyricsContainer.style.fontSize = `${readerFontSize}px`;
+
+      if (!filled) {
+        lyricsContainer.innerHTML = `
+          <div class="p-6 sm:p-8 rounded-2xl bg-gbkp-card border-2 border-dashed border-gbkp-border text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-gbkp-navy/10 text-gbkp-navy mx-auto flex items-center justify-center">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div class="max-w-lg mx-auto space-y-1.5">
+              <h3 class="text-base sm:text-lg font-extrabold text-gbkp-navy">
+                KEE No. ${song.number} Belum Terisi
+              </h3>
+              <p class="text-xs sm:text-sm text-gbkp-muted leading-relaxed">
+                Klik tombol di bawah untuk mengisi judul dan lirik asli sesuai buku cetak <strong>Kitab Ende-enden GBKP</strong>. Hasil input akan langsung tersinkronisasi ke seluruh perangkat teman-teman.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+              <button
+                type="button"
+                onclick="requireEditorAccess(() => openSongModal(${song.number}))"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gbkp-navy hover:bg-gbkp-blue text-gbkp-surface text-xs sm:text-sm font-semibold shadow-sm transition"
+              >
+                <svg class="w-4 h-4 text-gbkp-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>+ Isi Data Asli KEE No. ${song.number}</span>
+              </button>
+              <button
+                type="button"
+                onclick="requireEditorAccess(() => openImportModal())"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gbkp-surface hover:bg-gbkp-canvas border border-gbkp-border text-gbkp-navy text-xs sm:text-sm font-semibold transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Import Massal JSON</span>
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        const stanzas = song.lyrics.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+        lyricsContainer.innerHTML = stanzas.map((stanza) => {
+          const isReff = /^(reff|koor|refrain)\s*[:\-]?/i.test(stanza);
+          if (isReff) {
+            return `
+              <div class="p-4 sm:p-5 rounded-2xl bg-gbkp-card border-l-4 border-gbkp-blue shadow-2xs">
+                <span class="inline-block text-[11px] font-extrabold uppercase tracking-widest text-gbkp-blue mb-1.5">
+                  Reff / Koor
+                </span>
+                <p class="font-semibold text-gbkp-navy whitespace-pre-line">${escapeHtml(stanza.replace(/^(reff|koor|refrain)\s*[:\-]?\s*/i, ''))}</p>
+              </div>
+            `;
+          }
+          return `
+            <div class="pl-1">
+              <p class="whitespace-pre-line text-gbkp-text">${escapeHtml(stanza)}</p>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Perbarui tombol navigasi Sebelumnya & Berikutnya
+      const idx = songsDatabase.findIndex((s) => s.number === song.number);
+      const prevBtn = document.getElementById('prevSongBtn');
+      const nextBtn = document.getElementById('nextSongBtn');
+      const prevLabel = document.getElementById('prevSongLabel');
+      const nextLabel = document.getElementById('nextSongLabel');
+
+      if (idx > 0) {
+        prevBtn.disabled = false;
+        prevLabel.textContent = `No. ${songsDatabase[idx - 1].number}`;
+      } else {
+        prevBtn.disabled = true;
+        prevLabel.textContent = 'Awal';
+      }
+
+      if (idx < songsDatabase.length - 1) {
+        nextBtn.disabled = false;
+        nextLabel.textContent = `No. ${songsDatabase[idx + 1].number}`;
+      } else {
+        nextBtn.disabled = true;
+        nextLabel.textContent = 'Akhir';
+      }
+
+      renderSongList();
+
+      if (scrollOnMobile && window.innerWidth < 1024) {
+        document.getElementById('readerPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function navigateSong(delta) {
+      const idx = songsDatabase.findIndex((s) => s.number === currentSongNo);
+      const nextIdx = idx + delta;
+      if (nextIdx >= 0 && nextIdx < songsDatabase.length) {
+        selectSong(songsDatabase[nextIdx].number, false);
+      }
+    }
+
+    function scrollToList() {
+      document.getElementById('listPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function changeFontSize(delta) {
+      readerFontSize = Math.min(30, Math.max(14, readerFontSize + delta));
+      document.getElementById('fontSizeIndicator').textContent = `${readerFontSize}px`;
+      document.getElementById('readerLyricsBody').style.fontSize = `${readerFontSize}px`;
+    }
+
+    /**
+     * Salin lirik ke clipboard menggunakan document.execCommand
+     */
+    function copyCurrentLyrics() {
+      const song = songsDatabase.find((s) => s.number === currentSongNo);
+      if (!song || !isSongFilled(song)) return;
+
+      const textToCopy = `KEE No. ${song.number} - ${song.title}\n(${song.category})\n\n${song.lyrics}`;
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        document.execCommand('copy');
+        showToast(`Lirik KEE No. ${song.number} berhasil disalin!`);
+      } catch (err) {
+        showToast('Gagal menyalin lirik.', 'error');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    /**
+     * Penanda Lagu Ibadah (Per Perangkat)
+     */
+    function toggleBookmarkByNo(number) {
+      const num = Number(number);
+      if (bookmarkedNos.has(num)) {
+        bookmarkedNos.delete(num);
+        showToast(`KEE No. ${num} dihapus dari daftar ibadah.`);
+      } else {
+        bookmarkedNos.add(num);
+        showToast(`KEE No. ${num} ditandai untuk ibadah.`);
+      }
+      saveBookmarksToStorage();
+      updateDashboardStats();
+      selectSong(currentSongNo, false);
+    }
+
+    function toggleCurrentBookmark() {
+      toggleBookmarkByNo(currentSongNo);
+    }
+
+    function clearSearch() {
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderSongList();
+    }
+
+    function resetFilters() {
+      searchQuery = '';
+      activeCategory = 'ALL';
+      activeStatus = 'ALL';
+
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      document.getElementById('categorySelect').value = 'ALL';
+      document.getElementById('statusSelect').value = 'ALL';
+
+      renderCategoryFilters();
+      renderSongList();
+    }
+
+    /**
+     * ==================== MODAL TAMBAH / EDIT LAGU (SUPABASE UPSERT) ====================
+     */
+    function openSongModal(editNo = null) {
+      const modal = document.getElementById('songModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const numInput = document.getElementById('formNumber');
+      const catInput = document.getElementById('formCategory');
+      const titleInput = document.getElementById('formTitle');
+      const contributorInput = document.getElementById('formContributor');
+      const lyricsInput = document.getElementById('formLyrics');
+
+      const targetNo = editNo !== null ? Number(editNo) : currentSongNo;
+      const existing = songsDatabase.find((s) => s.number === targetNo);
+      const savedContributor = localStorage.getItem(CONTRIBUTOR_KEY) || '';
+
+      if (existing) {
+        const filled = isSongFilled(existing);
+        modalTitle.textContent = filled
+          ? `Edit Lagu KEE No. ${existing.number}`
+          : `Isi Data Asli KEE No. ${existing.number}`;
+        numInput.value = existing.number;
+        catInput.value = existing.category;
+        titleInput.value = existing.title || '';
+        lyricsInput.value = existing.lyrics || '';
+        contributorInput.value = savedContributor || existing.updated_by || '';
+      } else {
+        modalTitle.textContent = 'Isi Data Asli Lagu KEE';
+        numInput.value = currentSongNo;
+        catInput.value = getDefaultCategoryName(currentSongNo);
+        titleInput.value = '';
+        lyricsInput.value = '';
+        contributorInput.value = savedContributor;
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => titleInput.focus(), 50);
+    }
+
+    function closeSongModal() {
+      document.getElementById('songModal').classList.add('hidden');
+    }
+
+    async function saveSongToSupabase(event) {
+      event.preventDefault();
+      if (!isEditorUnlocked()) {
+        closeSongModal();
+        openPinModal(() => openSongModal());
+        return;
+      }
+
+      const number = parseInt(document.getElementById('formNumber').value, 10);
+      const category = document.getElementById('formCategory').value;
+      const title = document.getElementById('formTitle').value.trim();
+      const lyrics = document.getElementById('formLyrics').value.trim();
+      const updatedBy = document.getElementById('formContributor').value.trim();
+
+      if (!number || number < 1 || number > MAX_KEE_NUMBER) {
+        showToast(`Nomor KEE harus antara 1 sampai ${MAX_KEE_NUMBER}.`, 'error');
+        return;
+      }
+      if (!title || !lyrics) {
+        showToast('Judul asli dan lirik lagu wajib diisi.', 'error');
+        return;
+      }
+
+      // Simpan nama pengisi ke localStorage agar tidak perlu mengetik ulang
+      if (updatedBy) {
+        localStorage.setItem(CONTRIBUTOR_KEY, updatedBy);
+      }
+
+      const submitBtn = document.getElementById('saveSongSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      const payload = {
+        number: number,
+        title: title,
+        category: category,
+        lyrics: lyrics,
+        updated_by: updatedBy,
+        updated_at: new Date().toISOString()
+      };
+
+      try {
+        if (!supabaseClient) {
+          throw new Error('Koneksi Supabase belum tersedia.');
+        }
+
+        const { data, error } = await supabaseClient
+          .from('lagu_kee')
+          .upsert(payload, { onConflict: 'number' })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        mergeRowsIntoDatabase([data || payload]);
+        saveDatabaseCache();
+        updateDashboardStats();
+        closeSongModal();
+        selectSong(number, false);
+        showToast(`KEE No. ${number} berhasil disimpan ke Supabase!`);
+      } catch (err) {
+        console.error('Gagal menyimpan lagu ke Supabase:', err);
+        showToast(`Gagal menyimpan ke cloud: ${err.message || 'Periksa koneksi internet Anda'}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Simpan ke Cloud';
+      }
+    }
+
+    /**
+     * ==================== MODAL IMPORT & EXPORT JSON MASSAL ====================
+     */
+    function openImportModal() {
+      document.getElementById('jsonFileInput').value = '';
+      document.getElementById('jsonPasteArea').value = '';
+      document.getElementById('importContributor').value = localStorage.getItem(CONTRIBUTOR_KEY) || '';
+      hideImportError();
+      document.getElementById('importModal').classList.remove('hidden');
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').classList.add('hidden');
+    }
+
+    function showImportError(msg) {
+      const box = document.getElementById('importErrorBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+
+    function hideImportError() {
+      const box = document.getElementById('importErrorBox');
+      box.textContent = '';
+      box.classList.add('hidden');
+    }
+
+    function handleJsonFileUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      hideImportError();
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('jsonPasteArea').value = e.target.result || '';
+        showToast(`File "${file.name}" dimuat. Klik "Unggah ke Supabase".`);
+      };
+      reader.onerror = function () {
+        showImportError('Gagal membaca file JSON dari perangkat Anda.');
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    async function processJsonBatchImport() {
+      if (!isEditorUnlocked()) {
+        closeImportModal();
+        openPinModal(() => openImportModal());
+        return;
+      }
+
+      hideImportError();
+      const rawText = document.getElementById('jsonPasteArea').value.trim();
+      if (!rawText) {
+        showImportError('Silakan pilih file .json atau tempel kode JSON terlebih dahulu.');
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText);
+      } catch (err) {
+        showImportError(`Format JSON tidak valid: ${err.message}`);
+        return;
+      }
+
+      let incomingList = null;
+      if (Array.isArray(parsed)) {
+        incomingList = parsed;
+      } else if (parsed && Array.isArray(parsed.songs)) {
+        incomingList = parsed.songs;
+      } else if (parsed && Array.isArray(parsed.data)) {
+        incomingList = parsed.data;
+      }
+
+      if (!incomingList) {
+        showImportError('Struktur JSON harus berupa array lagu [...] atau objek dengan properti "songs": [...].');
+        return;
+      }
+
+      const importMode = document.getElementById('importModeSelect').value;
+      const contributorInput = document.getElementById('importContributor').value.trim();
+      if (contributorInput) {
+        localStorage.setItem(CONTRIBUTOR_KEY, contributorInput);
+      }
+
+      const validCategoryNames = new Set(LITURGICAL_CATEGORIES.map((c) => c.name));
+      const rowsToUpsert = [];
+      let skippedEmptyCount = 0;
+      let skippedExistingCount = 0;
+
+      incomingList.forEach((entry) => {
+        if (!entry || typeof entry !== 'object') return;
+        const num = parseInt(entry.number !== undefined ? entry.number : entry.no, 10);
+        if (!num || num < 1 || num > MAX_KEE_NUMBER) return;
+
+        const title = typeof entry.title === 'string' ? entry.title.trim() : '';
+        const lyrics = typeof entry.lyrics === 'string' ? entry.lyrics.trim() : '';
+
+        if (!title || !lyrics) {
+          skippedEmptyCount++;
+          return;
+        }
+
+        const current = songsDatabase.find((s) => s.number === num);
+        if (importMode === 'ONLY_EMPTY' && current && isSongFilled(current)) {
+          skippedExistingCount++;
+          return;
+        }
+
+        const incomingCat = typeof entry.category === 'string' ? entry.category.trim() : '';
+        const finalCategory = validCategoryNames.has(incomingCat)
+          ? incomingCat
+          : (incomingCat || (current && current.category) || getDefaultCategoryName(num));
+
+        const entryAuthor = typeof entry.updated_by === 'string' && entry.updated_by.trim()
+          ? entry.updated_by.trim()
+          : contributorInput;
+
+        rowsToUpsert.push({
+          number: num,
+          title: title,
+          category: finalCategory,
+          lyrics: lyrics,
+          updated_by: entryAuthor,
+          updated_at: new Date().toISOString()
+        });
+      });
+
+      if (rowsToUpsert.length === 0) {
+        if (skippedExistingCount > 0) {
+          showImportError(`Semua ${skippedExistingCount} lagu di file JSON sudah terisi di database. Pilih mode "Timpa data lama" jika ingin memperbaruinya.`);
+        } else if (skippedEmptyCount > 0) {
+          showImportError(`Ditemukan ${skippedEmptyCount} entri, tetapi "title" atau "lyrics" masih kosong.`);
+        } else {
+          showImportError(`Tidak ada entri valid dengan nomor KEE 1–${MAX_KEE_NUMBER} di dalam JSON.`);
+        }
+        return;
+      }
+
+      const submitBtn = document.getElementById('importSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = `Mengunggah ${rowsToUpsert.length} lagu...`;
+
+      try {
+        if (!supabaseClient) {
+          throw new Error('Koneksi Supabase belum tersedia.');
+        }
+
+        const { data, error } = await supabaseClient
+          .from('lagu_kee')
+          .upsert(rowsToUpsert, { onConflict: 'number' })
+          .select();
+
+        if (error) throw error;
+
+        mergeRowsIntoDatabase(data || rowsToUpsert);
+        saveDatabaseCache();
+        updateDashboardStats();
+        closeImportModal();
+        selectSong(rowsToUpsert[0].number, false);
+        showToast(`Berhasil mengunggah ${rowsToUpsert.length} lagu KEE ke Supabase!`);
+      } catch (err) {
+        console.error('Gagal batch import ke Supabase:', err);
+        showImportError(`Gagal mengunggah ke Supabase: ${err.message}`);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Unggah ke Supabase';
+      }
+    }
+
+    function downloadTemplateJSON() {
+      try {
+        const templateSongs = buildEmptyFramework().map((item) => ({
+          number: item.number,
+          title: '',
+          category: item.category,
+          lyrics: ''
+        }));
+
+        const payload = {
+          appName: 'Library KEE GBKP - Template Resmi (No. 1-474)',
+          instructions: 'Isi field "title" dan "lyrics" (pisahkan antar bait dengan \\n\\n), lalu unggah lewat tombol Import JSON.',
+          totalSongs: templateSongs.length,
+          songs: templateSongs
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'Template-KEE-GBKP-1-474.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Template JSON KEE No. 1–474 berhasil diunduh!');
+      } catch (err) {
+        showToast('Gagal mengunduh template JSON.', 'error');
+      }
+    }
+
+    function exportDatabaseJSON() {
+      try {
+        const filledCount = songsDatabase.filter(isSongFilled).length;
+        const payload = {
+          appName: 'Library KEE GBKP',
+          exportedAt: new Date().toISOString(),
+          totalSongs: songsDatabase.length,
+          filledSongs: filledCount,
+          songs: songsDatabase
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Backup-Library-KEE-GBKP-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast(`Backup JSON diunduh (${filledCount} lagu terisi dari ${MAX_KEE_NUMBER} nomor).`);
+      } catch (err) {
+        showToast('Gagal mengekspor backup JSON.', 'error');
+      }
+    }
+
+    /**
+     * ==================== MODE PROYEKTOR IBADAH LAYAR PENUH ====================
+     */
+    function openProjectionMode() {
+      const song = songsDatabase.find((s) => s.number === currentSongNo);
+      if (!song || !isSongFilled(song)) {
+        showToast('Isi data asli lagu terlebih dahulu untuk menggunakan Mode Proyektor.', 'error');
+        return;
+      }
+
+      projectionSlides = song.lyrics.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+      projectionSlideIndex = 0;
+      projectionFullSongMode = false;
+
+      document.getElementById('projNumberBadge').textContent = `KEE No. ${song.number}`;
+      document.getElementById('projTitle').textContent = song.title;
+      document.getElementById('projCategory').textContent = song.category;
+
+      renderProjectionSlide();
+      document.getElementById('projectionOverlay').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProjectionMode() {
+      document.getElementById('projectionOverlay').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function toggleProjectionViewMode() {
+      projectionFullSongMode = !projectionFullSongMode;
+      renderProjectionSlide();
+    }
+
+    function changeProjectionSlide(delta) {
+      if (projectionFullSongMode) return;
+      const next = projectionSlideIndex + delta;
+      if (next >= 0 && next < projectionSlides.length) {
+        projectionSlideIndex = next;
+        renderProjectionSlide();
+      }
+    }
+
+    function renderProjectionSlide() {
+      const textEl = document.getElementById('projSlideText');
+      const indicatorEl = document.getElementById('projSlideIndicator');
+      const prevBtn = document.getElementById('projPrevBtn');
+      const nextBtn = document.getElementById('projNextBtn');
+      const modeBtn = document.getElementById('projViewModeBtn');
+
+      if (projectionFullSongMode) {
+        modeBtn.textContent = 'Tampilan: Semua Bait';
+        textEl.className = 'max-w-4xl mx-auto text-xl sm:text-2xl lg:text-3xl font-semibold leading-relaxed text-gbkp-surface whitespace-pre-line text-left py-4';
+        textEl.textContent = projectionSlides.join('\n\n');
+        indicatorEl.textContent = `Seluruh Lagu (${projectionSlides.length} Bait)`;
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+      } else {
+        modeBtn.textContent = 'Tampilan: Per Bait';
+        textEl.className = 'max-w-5xl mx-auto text-2xl sm:text-4xl lg:text-5xl font-bold leading-relaxed tracking-wide text-gbkp-surface whitespace-pre-line text-center';
+        textEl.textContent = projectionSlides[projectionSlideIndex] || '';
+        indicatorEl.textContent = `Bait ${projectionSlideIndex + 1} / ${projectionSlides.length}`;
+        prevBtn.disabled = projectionSlideIndex === 0;
+        nextBtn.disabled = projectionSlideIndex >= projectionSlides.length - 1;
+      }
+    }
+
+    /**
+     * ==================== UTILITAS HTML & NOTIFIKASI TOAST ====================
+     */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs sm:text-sm font-semibold animate-fade-up ${
+        type === 'error'
+          ? 'bg-red-800 text-white border-red-700'
+          : 'bg-gbkp-navy text-gbkp-surface border-white/15'
+      }`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 260);
+      }, 3000);
+    }
+
+    /**
+     * ==================== INISIALISASI SAAT HALAMAN DIMUAT ====================
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Jalankan jam & tanggal real-time WIB setiap detik
+      updateRealtimeClock();
+      setInterval(updateRealtimeClock, 1000);
+
+      // 2. Muat cache lokal & render kerangka awal 1-474
+      loadInitialCacheAndBookmarks();
+      updateEditorLockUI();
+      updateDashboardStats();
+      renderCategoryFilters();
+      selectSong(1, false);
+
+      // 3. Hubungkan ke Supabase & aktifkan Realtime Sync
+      initSupabaseAndRealtime();
+
+      // 4. Event listener pencarian
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery.trim().length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+        renderSongList();
+      });
+
+      // 5. Event listener dropdown kategori & status
+      document.getElementById('categorySelect').addEventListener('change', (e) => {
+        setActiveCategory(e.target.value);
+      });
+
+      document.getElementById('statusSelect').addEventListener('change', (e) => {
+        activeStatus = e.target.value;
+        renderSongList();
+      });
+
+      // 6. Penyesuaian otomatis kategori liturgi saat nomor KEE diubah pada form
+      document.getElementById('formNumber').addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (val >= 1 && val <= MAX_KEE_NUMBER) {
+          const existing = songsDatabase.find((s) => s.number === val);
+          document.getElementById('formCategory').value = existing
+            ? existing.category
+            : getDefaultCategoryName(val);
+        }
+      });
+
+      // 7. Navigasi keyboard untuk Mode Proyektor & Tutup Modal (Esc / Panah Kiri-Kanan)
+      document.addEventListener('keydown', (e) => {
+        const projOpen = !document.getElementById('projectionOverlay').classList.contains('hidden');
+        if (projOpen) {
+          if (e.key === 'Escape') closeProjectionMode();
+          if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            changeProjectionSlide(1);
+          }
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeProjectionSlide(-1);
+          }
+          return;
+        }
+
+        if (e.key === 'Escape') {
+          closePinModal();
+          closeSongModal();
+          closeImportModal();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
